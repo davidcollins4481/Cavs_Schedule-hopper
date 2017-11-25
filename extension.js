@@ -31,7 +31,7 @@ const CavsPanelButton = new Lang.Class({
         this.menu.actor.add_style_class_name('top-level');
 
         this.gameService.getAll(function(games) {
-            games.forEach(function(game, i) {
+            games.slice(0, 20).forEach(function(game, i) {
                 let visitingTeam = self.teamService.getTeamById(game.vTeam.teamId);
                 let homeTeam     = self.teamService.getTeamById(game.hTeam.teamId);
                 let startTime    = new Date(game.startTimeUTC);
@@ -45,11 +45,6 @@ const CavsPanelButton = new Lang.Class({
         });
     }
 });
-
-function _showSchedule() {
-    let menuItem = new PopupMenu.PopupBaseMenuItem();
-    button.menu.addMenuItem(menuItem);
-}
 
 function init() {
     button = new CavsPanelButton();
