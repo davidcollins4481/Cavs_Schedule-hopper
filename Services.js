@@ -52,5 +52,4 @@ var GameService = function() {
             }
         }
     };
-
 };

@@ -2,3 +2,17 @@
     width: 25px;
     padding: 2px 0;
 }
+
+.home-game {
+    background-color: #FFB81C;
+    color: #6F2633;
+}
+
+.away-game {
+    color: #FFB81C;
+    background-color: #6F2633;
+}
+
+.top-level {
+    max-height: 400px;
+}

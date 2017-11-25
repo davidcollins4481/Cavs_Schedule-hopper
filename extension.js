@@ -8,7 +8,7 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Services = Me.imports.Services;
 
-let button, teamService;
+let button;
 
 const CavsPanelButton = new Lang.Class({
     Name: "CavsPanelButton",
@@ -19,8 +19,7 @@ const CavsPanelButton = new Lang.Class({
         this.parent(0.0, "Cavs Panel Button", false);
         this.teamService = new Services.TeamService();
         this.gameService = new Services.GameService();
-        let path = Me.path + "/img/cleveland-cavs.png";
-        let file = Gio.File.new_for_path(path);
+        let file = Gio.File.new_for_path(Me.path + "/img/cleveland-cavs.png");
 
         let icon = new St.Icon({
             style_class: 'cavs-icon',
@@ -29,34 +28,26 @@ const CavsPanelButton = new Lang.Class({
 
         this.actor.add_actor(icon);
 
-        let teams = this.teamService.getTeams();
-        let that = this;
+        this.menu.actor.add_style_class_name('top-level');
+
         this.gameService.getAll(function(games) {
-            games.forEach(function(game) {
-
-                let visitingTeam = that.teamService.getTeamById(game.vTeam.teamId);
-                let homeTeam     = that.teamService.getTeamById(game.hTeam.teamId);
+            games.forEach(function(game, i) {
+                let visitingTeam = self.teamService.getTeamById(game.vTeam.teamId);
+                let homeTeam     = self.teamService.getTeamById(game.hTeam.teamId);
                 let startTime    = new Date(game.startTimeUTC);
-                let label = "";
-                if (game.isHomeTeam) {
-                    label = homeTeam['fullName'] + " vs. " + visitingTeam['fullName'];
-                } else {
-                    label = visitingTeam['fullName'] + " vs. " + homeTeam['fullName'];
-                }
-
+                let label = visitingTeam['fullName'] + " at " + homeTeam['fullName'];
                 let [m, d, y] = [startTime.getMonth() + 1, startTime.getDate(), startTime.getFullYear()];
                 label += " " + `(${m}/${d}/${y})`;
                 let menuItem = new PopupMenu.PopupMenuItem(label);
-                that.menu.addMenuItem(menuItem);
+                menuItem.actor.add_style_class_name(game.isHomeTeam ? 'home-game' : 'away-game');
+                self.menu.addMenuItem(menuItem);
             });
         });
     }
 });
 
 function _showSchedule() {
-    global.log('showing schedule');
     let menuItem = new PopupMenu.PopupBaseMenuItem();
-
     button.menu.addMenuItem(menuItem);
 }
 
