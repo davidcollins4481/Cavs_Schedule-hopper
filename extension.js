@@ -3,14 +3,12 @@ const Lang = imports.lang;
 const Main = imports.ui.main;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
-const Tweener = imports.ui.tweener;
-const Soup = imports.gi.Soup;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Mainloop = imports.mainloop;
+const Services = Me.imports.Services;
 
-let button;
+let button, teamService;
 
 const CavsPanelButton = new Lang.Class({
     Name: "CavsPanelButton",
@@ -19,7 +17,8 @@ const CavsPanelButton = new Lang.Class({
     _init: function() {
         var self = this;
         this.parent(0.0, "Cavs Panel Button", false);
-
+        this.teamService = new Services.TeamService();
+        this.gameService = new Services.GameService();
         let path = Me.path + "/img/cleveland-cavs.png";
         let file = Gio.File.new_for_path(path);
 
@@ -29,44 +28,28 @@ const CavsPanelButton = new Lang.Class({
         });
 
         this.actor.add_actor(icon);
-        let teams = this.teams;
+
+        let teams = this.teamService.getTeams();
         let that = this;
-        this._getGames(function(games) {
+        this.gameService.getAll(function(games) {
             games.forEach(function(game) {
-                let menuItem = new PopupMenu.PopupMenuItem(game.gameId);
+
+                let visitingTeam = that.teamService.getTeamById(game.vTeam.teamId);
+                let homeTeam     = that.teamService.getTeamById(game.hTeam.teamId);
+                let startTime    = new Date(game.startTimeUTC);
+                let label = "";
+                if (game.isHomeTeam) {
+                    label = homeTeam['fullName'] + " vs. " + visitingTeam['fullName'];
+                } else {
+                    label = visitingTeam['fullName'] + " vs. " + homeTeam['fullName'];
+                }
+
+                let [m, d, y] = [startTime.getMonth() + 1, startTime.getDate(), startTime.getFullYear()];
+                label += " " + `(${m}/${d}/${y})`;
+                let menuItem = new PopupMenu.PopupMenuItem(label);
                 that.menu.addMenuItem(menuItem);
-
-
             });
         });
-    },
-
-    _getGames: function(callback) {
-        let url = 'http://data.nba.net/prod/v1/2017/teams/cavaliers/schedule.json';
-
-        var request = Soup.Message.new('GET', url);
-
-        var session = new Soup.SessionAsync();
-        var that = this;
-        session.queue_message(request, function(session, message) {
-            //global.log(message.response_body.data);
-            let data = JSON.parse(message.response_body.data);
-            let games = data.league.standard;
-            callback(games);
-            //Mainloop.quit();
-        });
-    },
-
-    get teams() {
-        let path = Me.path + "/data/teams.json";
-        let [result, contents] = GLib.file_get_contents(path);
-        if (!result) {
-            return false;
-        }
-
-        let json = JSON.parse(contents);
-        let teams = json.league.standard;
-        return teams;
     }
 });
 
