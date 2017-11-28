@@ -40,6 +40,17 @@ const CavsPanelButton = new Lang.Class({
                 label += " " + `(${m}/${d}/${y})`;
                 let menuItem = new PopupMenu.PopupMenuItem(label);
                 menuItem.actor.add_style_class_name(game.isHomeTeam ? 'home-game' : 'away-game');
+
+                let broadcasters = game.watch.broadcast.broadcasters[game.isHomeTeam ? 'hTeam' : 'vTeam'];
+
+                let canWatch = broadcasters.find(function(broadcaster) {
+                    return broadcaster.shortName == "FSO";
+                });
+
+                if (!canWatch) {
+                    menuItem.actor.add_style_class_name('cannot-watch');
+                }
+
                 self.menu.addMenuItem(menuItem);
             });
         });

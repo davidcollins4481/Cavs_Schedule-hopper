@@ -12,3 +12,7 @@
     color: #FFB81C;
     background-color: #6F2633;
 }
+
+.cannot-watch {
+    background-color: black !important;
+}
