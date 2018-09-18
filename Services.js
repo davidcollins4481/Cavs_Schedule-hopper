@@ -27,7 +27,16 @@ var TeamService = function() {
 };
 
 var GameService = function() {
-    let url = 'http://data.nba.net/prod/v1/2017/teams/cavaliers/schedule.json';
+    let now = new Date();
+    let year = "";
+    let september = 8;
+    if (now.getMonth() >= september) {
+        year = now.getFullYear();
+    } else {
+        year = now.getFullYear() - 1;
+    }
+    
+    let url = "http://data.nba.net/prod/v1/" + year + "/teams/cavaliers/schedule.json";
     let games = [];
 
     return {
