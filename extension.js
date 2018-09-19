@@ -38,19 +38,21 @@ const CavsPanelButton = new Lang.Class({
                 let label = visitingTeam['fullName'] + " at " + homeTeam['fullName'];
                 let [m, d, y] = [startTime.getMonth() + 1, startTime.getDate(), startTime.getFullYear()];
                 label += " " + `(${m}/${d}/${y})`;
-                let menuItem = new PopupMenu.PopupMenuItem(label);
-                menuItem.actor.add_style_class_name(game.isHomeTeam ? 'home-game' : 'away-game');
 
                 let broadcasters = game.watch.broadcast.broadcasters[game.isHomeTeam ? 'hTeam' : 'vTeam'];
 
-                let canWatch = broadcasters.find(function(broadcaster) {
-                    return broadcaster.shortName == "FSO";
+                let broadcasterNames = broadcasters.map(function(b) {
+                    return b.longName;
                 });
 
-                if (!canWatch) {
-                    menuItem.actor.add_style_class_name('cannot-watch');
+                if (broadcasterNames.length > 0) {
+                    label += "\nNetwork: " + broadcasterNames.join(', ');
+                } else {
+                    label += "\nNetwork: -";
                 }
 
+                let menuItem = new PopupMenu.PopupMenuItem(label);
+                menuItem.actor.add_style_class_name(game.isHomeTeam ? 'home-game' : 'away-game');
                 self.menu.addMenuItem(menuItem);
             });
         });
@@ -58,10 +60,10 @@ const CavsPanelButton = new Lang.Class({
 });
 
 function init() {
-    button = new CavsPanelButton();
 }
 
 function enable() {
+    button = new CavsPanelButton();
     Main.panel.addToStatusArea('cavs-button', button);
 }
 
